@@ -1,6 +1,8 @@
 #ifndef __SYLAR_LOG_H__
 #define __SYLAR_LOG_H__
 
+#include <fstream>
+#include <stringstream>
 #include <string>
 #include <stdint.h>
 #include <memory>
@@ -8,6 +10,7 @@
 
 namespace sylar{
 
+class Logger;
 class LogEvent {
 public:
     typedef std::shared_ptr<LogEvent> ptr;
@@ -50,7 +53,7 @@ public:
     typedef std::shared_ptr<LogAppender> ptr;
     virtual ~LogAppender(){}
 
-    virtual void log(LogLevel::Level level, LogEvent::ptr event) = 0;
+    virtual void log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event) = 0;
 
     void setFormatter(LogFormatter::ptr val) { m_formatter = val;}
     LogFormatter::ptr getFormatter() const {
@@ -66,13 +69,14 @@ public:
     typedef std::shared_ptr<LogFormatter> ptr;
     LogFormatter(const std::string& pattern);
 
-    std::string format(LogLevel::Level level, LogEvent::ptr event);
+    std::string format(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event);
 public:
     class FormatItem {
     public:
         typedef std::shared_ptr<Format> ptr;
+        FormatItem(const std::string& fmt = "");
         virtual ~FormatItem() {}
-        virtual void format(std::ostream& os, LogLevel::Level level, LogEvent::ptr event) = 0;
+        virtual void format(std::ostream& os, std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event) = 0;
     };
 
     void init();
@@ -101,6 +105,8 @@ public:
     void delAppender(LogAppender::ptr appender);
     LogLevel::Level getLevel() const { return m_level;}
     void setLevel(LogLevel::Level val) { m_level = val; }
+
+    const std::string& getName() const { return m_name;}
 private:
     std::string m_name
     LogLevel::Level m_level;
