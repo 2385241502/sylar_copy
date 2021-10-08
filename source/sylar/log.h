@@ -16,7 +16,7 @@ class Logger;
 class LogEvent {
 public:
     typedef std::shared_ptr<LogEvent> ptr;
-    LogEvent();
+    LogEvent(const char* file, int32_t m_line, uint32_t elapse, uint32_t thread_id, uint32_t fiber_id, uint64_t time);
 
     const char* getFile() const { return m_file;}
     int32_t getLine() const { return m_line;}
@@ -84,7 +84,7 @@ public:
     LogFormatter::ptr getFormatter() const {
         return m_formatter;}
 protected:
-    LogLevel::Level m_level;
+    LogLevel::Level m_level = LogLevel::DEBUG;
     LogFormatter::ptr m_formatter;
 };
 
